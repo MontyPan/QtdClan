@@ -17,8 +17,8 @@
 	<dependencies>
 		<dependency>
 			<groupId>us.dontcareabout</groupId>
-			<artifactId>gf</artifactId>
-			<version>0.1.1-SNAPSHOT</version>
+			<artifactId>google-sheet-toolkit</artifactId>
+			<version>0.0.1</version>
 		</dependency>
 	</dependencies>
 	
