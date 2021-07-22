@@ -44,7 +44,12 @@ public class LevelMantissa {
 		if (a.equals(b)) { return ZERO; }
 
 		if (a.level == b.level) {
-			return new LevelMantissa(a.level, a.mantissa - b.mantissa);
+			double diff = a.mantissa - b.mantissa;
+			if (diff >= 1) {
+				return new LevelMantissa(a.level, diff);
+			} else {
+				return new LevelMantissa(a.level - 1, (int)(diff * 1000));
+			}
 		}
 
 		if (a.level == b.level + 1) {
