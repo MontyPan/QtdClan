@@ -70,6 +70,27 @@ public class LevelMantissa implements Comparable<LevelMantissa> {
 		return a;
 	}
 
+	/**
+	 * @return a + b
+	 */
+	public static LevelMantissa plus(LevelMantissa a, LevelMantissa b) {
+		LevelMantissa big = a;
+		LevelMantissa small = b;
+
+		if (a.compareTo(b) < 0) { big = b; small = a; }
+
+		if (big.level == small.level) {
+			return new LevelMantissa(big.level, big.mantissa + small.mantissa);
+		}
+
+		if (big.level == small.level + 1) {
+			return new LevelMantissa(big.level, big.mantissa + small.mantissa / 1000.0);
+		}
+
+		//level 差距超過 2，small 等同於雜訊，所以直接回傳 big
+		return big;
+	}
+
 	private static int toInt(double d) {
 		return (int) d;
 	}

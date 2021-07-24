@@ -42,4 +42,42 @@ class LevelMantissaTest {
 			LevelMantissa.ZERO
 		);
 	}
+
+	@Test
+	void testPlus() {
+		LevelMantissa v = new LevelMantissa(4, 500.5);
+
+		assertEquals(	//同 L，sum 沒有超過
+			LevelMantissa.plus(v, new LevelMantissa(4, 499.499)),
+			new LevelMantissa(4, 999.999)
+		);
+		assertEquals(	//同 L，sum 超過
+			LevelMantissa.plus(v, new LevelMantissa(4, 499.5)),
+			new LevelMantissa(5, 1)
+		);
+		assertEquals(	//同 L，sum 超過
+			LevelMantissa.plus(v, new LevelMantissa(4, 511.5)),
+			new LevelMantissa(5, 1.012)
+		);
+		assertEquals(	//L 差 1，sum 沒有超過
+			LevelMantissa.plus(v, new LevelMantissa(3, 400)),
+			new LevelMantissa(4, 500.9)
+		);
+		assertEquals(	//L 差 1，sum 沒有超過，交換律
+			LevelMantissa.plus(new LevelMantissa(3, 400), v),
+			new LevelMantissa(4, 500.9)
+		);
+		assertEquals(	//L 差 1，sum 有超過
+			LevelMantissa.plus(new LevelMantissa(4, 999.999), new LevelMantissa(3, 999)),
+			new LevelMantissa(5, 1)
+		);
+		assertEquals(	//L 差 2
+			LevelMantissa.plus(v, new LevelMantissa(2, 400)),
+			v
+		);
+		assertEquals(	//L 差 2，交換律
+			LevelMantissa.plus(new LevelMantissa(2, 400), v),
+			v
+		);
+	}
 }
