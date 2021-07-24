@@ -4,15 +4,24 @@ import java.util.Objects;
 
 import us.dontcareabout.QtdClan.client.data.Damage;
 
-public class LevelMantissa {
+public class LevelMantissa implements Comparable<LevelMantissa> {
 	public static LevelMantissa ZERO = new LevelMantissa(0, 0);
 
 	public final int level;
 	public final double mantissa;
 
 	public LevelMantissa(int level, double mantissa) {
-		this.level = level;
-		this.mantissa = mantissa;
+		if (mantissa >= 1000) {
+			this.level = level + 1;
+			this.mantissa = toInt(mantissa) / 1000.0;
+		} else if (mantissa < 1) {
+			//不打算考慮 level 降兩階的狀況... [眼神死]
+			this.level = level - 1;
+			this.mantissa = toInt(mantissa * 1000000) / 1000.0;
+		} else {
+			this.level = level;
+			this.mantissa = mantissa;
+		}
 	}
 
 	public LevelMantissa(Damage damage) {
@@ -37,6 +46,12 @@ public class LevelMantissa {
 		return level == other.level && Double.doubleToLongBits(mantissa) == Double.doubleToLongBits(other.mantissa);
 	}
 
+	@Override
+	public int compareTo(LevelMantissa o) {
+		if (level != o.level) { return level - o.level; }
+		return Double.valueOf(mantissa).compareTo(Double.valueOf(o.mantissa));
+	}
+
 	/**
 	 * @return a - b
 	 */
@@ -44,25 +59,18 @@ public class LevelMantissa {
 		if (a.equals(b)) { return ZERO; }
 
 		if (a.level == b.level) {
-			double diff = a.mantissa - b.mantissa;
-			if (diff >= 1) {
-				return new LevelMantissa(a.level, diff);
-			} else {
-				return new LevelMantissa(a.level - 1, (int)(diff * 1000));
-			}
+			return new LevelMantissa(a.level, a.mantissa - b.mantissa);
 		}
 
 		if (a.level == b.level + 1) {
-			double diff = a.mantissa * 1000 - b.mantissa;
-
-			if (diff < 1000) {
-				return new LevelMantissa(b.level, ((int)(diff * 1000)) / 1000.0 );
-			} else {
-				return new LevelMantissa(a.level, ((int)diff) / 1000.0);
-			}
+			return new LevelMantissa(b.level, a.mantissa * 1000 - b.mantissa);
 		}
 
 		//level 差距超過 2，b 等同於雜訊，所以直接回傳 a
 		return a;
+	}
+
+	private static int toInt(double d) {
+		return (int) d;
 	}
 }

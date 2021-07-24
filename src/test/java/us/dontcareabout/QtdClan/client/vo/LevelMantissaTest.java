@@ -6,6 +6,14 @@ import org.junit.jupiter.api.Test;
 
 class LevelMantissaTest {
 	@Test
+	void testConstructor() {
+		assertEquals(new LevelMantissa(5, 999.999), new LevelMantissa(5, 999.999));
+		assertEquals(new LevelMantissa(4, 1000), new LevelMantissa(5, 1));
+		assertEquals(new LevelMantissa(5, 1234.567), new LevelMantissa(6, 1.234));
+		assertEquals(new LevelMantissa(5, 0.123456), new LevelMantissa(4, 123.456));
+	}
+
+	@Test
 	void testMinus() {
 		LevelMantissa v1 = new LevelMantissa(4, 900.5);
 
