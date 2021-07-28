@@ -28,6 +28,10 @@ public class LevelMantissa implements Comparable<LevelMantissa> {
 		this(damage.getLevel(), damage.getMantissa());
 	}
 
+	public double value() {
+		return Math.pow(1000, level - 1) * mantissa;
+	}
+
 	@Override
 	public String toString() {
 		return "[L = " + level + ", M = " + mantissa + "]";
@@ -50,6 +54,15 @@ public class LevelMantissa implements Comparable<LevelMantissa> {
 	public int compareTo(LevelMantissa o) {
 		if (level != o.level) { return level - o.level; }
 		return Double.valueOf(mantissa).compareTo(Double.valueOf(o.mantissa));
+	}
+
+	/**
+	 * @return a / b
+	 */
+	public static double divide(LevelMantissa a, LevelMantissa b) {
+		if (ZERO.equals(b)) { return Double.NaN; }
+
+		return a.value() / b.value();
 	}
 
 	/**

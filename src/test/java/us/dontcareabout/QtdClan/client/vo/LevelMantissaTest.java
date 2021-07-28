@@ -14,6 +14,34 @@ class LevelMantissaTest {
 	}
 
 	@Test
+	void testValue() {
+		assertEquals(new LevelMantissa(3, 999.999).value(), 999999000);
+		assertEquals(new LevelMantissa(7, 123.456).value(), 123456000000000000000.0);
+	}
+
+	@Test
+	void testDivide() {
+		LevelMantissa v1 = new LevelMantissa(4, 60);
+
+		assertEquals(
+			LevelMantissa.divide(v1, new LevelMantissa(4, 120)),
+			0.5
+		);
+		assertEquals(
+			LevelMantissa.divide(v1, new LevelMantissa(5, 120)),
+			0.0005
+		);
+		assertEquals(
+			LevelMantissa.divide(v1, new LevelMantissa(4, 20)),
+			3
+		);
+		assertEquals(
+			LevelMantissa.divide(v1, LevelMantissa.ZERO),
+			Double.NaN
+		);
+	}
+
+	@Test
 	void testMinus() {
 		LevelMantissa v1 = new LevelMantissa(4, 900.5);
 
