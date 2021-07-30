@@ -21,10 +21,11 @@ public class DamageAnalyser {
 	};
 
 	public final int session;
-	public final Date lastDate;
 	public final List<Damage> list;
-	public final HashMap<Date, List<Damage>> byDate = new HashMap<>();
+
 	public final HashMap<String, List<Damage>> byPlayer = new HashMap<>();
+	public final Date lastDate;
+	public final LevelMantissa sum;
 
 	public DamageAnalyser(int session, List<Damage> list) {
 		this.session = session;
@@ -33,7 +34,6 @@ public class DamageAnalyser {
 		Date last = new Date(0);
 
 		for (Damage d : list) {
-			ensure(byDate, d.getDate()).add(d);
 			ensure(byPlayer, d.getPlayer()).add(d);
 
 			if (last.before(d.getDate())) { last = d.getDate(); }
@@ -45,6 +45,13 @@ public class DamageAnalyser {
 		}
 
 		lastDate = last;
+		LevelMantissa sum = LevelMantissa.ZERO;
+
+		for (String player : byPlayer.keySet()) {
+			sum = LevelMantissa.plus(sum, getDamage(player, last));
+		}
+
+		this.sum = sum;
 	}
 
 	public LevelMantissa getDamage(String player, Date date) {
@@ -69,16 +76,25 @@ public class DamageAnalyser {
 		);
 	}
 
+	/**
+	 * @return 如果 list 是空的、或是 list 內的時間都比傳入時間大，回傳 -1。
+	 * 	如果有指定日期，回傳指定日期的 index 值、否則回傳 list.size() - 1。
+	 */
+	//其實實際數據不會有這問題，只要第 x 天有紀錄，x + n 天都會有紀錄
+	//反而是測試資料才會炸這種問題 wwwww
 	private static int find(List<Damage> list, Date date) {
 		if (list == null || list.isEmpty()) { return -1; }
 
-		for (int i = 0; i < list.size(); i++) {
+		int i = 0;
+
+		for (; i < list.size(); i++) {
 			if (date.equals(list.get(i).getDate())) {
 				return i;
 			}
 		}
 
-		return -1;
+		i--;
+		return date.after(list.get(i).getDate()) ? i : - 1;
 	}
 
 	//Refactory GF
