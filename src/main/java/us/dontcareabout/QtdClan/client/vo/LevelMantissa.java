@@ -2,6 +2,8 @@ package us.dontcareabout.QtdClan.client.vo;
 
 import java.util.Objects;
 
+import com.google.common.base.Preconditions;
+
 import us.dontcareabout.QtdClan.client.data.Damage;
 
 public class LevelMantissa implements Comparable<LevelMantissa> {
@@ -11,10 +13,12 @@ public class LevelMantissa implements Comparable<LevelMantissa> {
 	public final double mantissa;
 
 	public LevelMantissa(int level, double mantissa) {
+		Preconditions.checkArgument(level >= 0);
+
 		if (mantissa >= 1000) {
 			this.level = level + 1;
 			this.mantissa = toInt(mantissa) / 1000.0;
-		} else if (mantissa < 1) {
+		} else if (mantissa < 1 && level > 1) {	//level = 0 再降沒意義
 			//不打算考慮 level 降兩階的狀況... [眼神死]
 			this.level = level - 1;
 			this.mantissa = toInt(mantissa * 1000000) / 1000.0;
