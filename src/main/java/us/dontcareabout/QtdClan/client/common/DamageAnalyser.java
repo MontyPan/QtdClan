@@ -1,16 +1,18 @@
 package us.dontcareabout.QtdClan.client.common;
 
-import static us.dontcareabout.QtdClan.client.vo.LevelMantissa.ZERO;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
+
+import com.google.gwt.user.datepicker.client.CalendarUtil;
 
 import us.dontcareabout.QtdClan.client.data.Damage;
 import us.dontcareabout.QtdClan.client.vo.LevelMantissa;
+import us.dontcareabout.QtdClan.client.vo.Player;
 
 public class DamageAnalyser {
 	private static final Comparator<Damage> compareDate = new Comparator<Damage>() {
@@ -23,78 +25,56 @@ public class DamageAnalyser {
 	public final int session;
 	public final List<Damage> list;
 
-	public final HashMap<String, List<Damage>> byPlayer = new HashMap<>();
-	public final Date lastDate;
+	public final Date startDate;
+	public final Date endDate;
 	public final LevelMantissa sum;
+	public final Set<String> players;
+	public final HashMap<String, Player> playerData = new HashMap<>();
 
 	public DamageAnalyser(int session, List<Damage> list) {
 		this.session = session;
 		this.list = list;
 
-		Date last = new Date(0);
+		Date start = new Date();
+		Date end = new Date(0);
+		HashMap<String, List<Damage>> byPlayer = new HashMap<>();
 
 		for (Damage d : list) {
 			ensure(byPlayer, d.getPlayer()).add(d);
 
-			if (last.before(d.getDate())) { last = d.getDate(); }
+			if (start.after(d.getDate())) { start = d.getDate(); }
+			if (end.before(d.getDate())) { end = d.getDate(); }
 		}
+
+		players = byPlayer.keySet();
+		startDate = start;
+		endDate = end;
+		int days = CalendarUtil.getDaysBetween(start, end) + 1;
 
 		//保險起見，按照日期排序一下
-		for (String player : byPlayer.keySet()) {
+		for (String player : players) {
 			Collections.sort(byPlayer.get(player), compareDate);
+			playerData.put(
+				player,
+				new Player(player, byPlayer.get(player), startDate, days)
+			);
 		}
 
-		lastDate = last;
 		LevelMantissa sum = LevelMantissa.ZERO;
 
-		for (String player : byPlayer.keySet()) {
-			sum = LevelMantissa.plus(sum, getDamage(player, last));
+		for (String player : players) {
+			sum = LevelMantissa.plus(sum, getDamage(player, end));
 		}
 
 		this.sum = sum;
 	}
 
 	public LevelMantissa getDamage(String player, Date date) {
-		List<Damage> data = byPlayer.get(player);
-		int index = find(data, date);
-
-		if (index == -1) { return ZERO; }
-
-		return new LevelMantissa(data.get(index));
+		return playerData.get(player).getDamage(date);
 	}
 
 	public LevelMantissa getDiffDamage(String player, Date date) {
-		List<Damage> data = byPlayer.get(player);
-		int index = find(data, date);
-
-		if (index == -1) { return ZERO; }
-		if (index == 0) { return new LevelMantissa(data.get(0)); }
-
-		return LevelMantissa.minus(
-			new LevelMantissa(data.get(index)),
-			new LevelMantissa(data.get(index - 1))
-		);
-	}
-
-	/**
-	 * @return 如果 list 是空的、或是 list 內的時間都比傳入時間大，回傳 -1。
-	 * 	如果有指定日期，回傳指定日期的 index 值、否則回傳 list.size() - 1。
-	 */
-	//其實實際數據不會有這問題，只要第 x 天有紀錄，x + n 天都會有紀錄
-	//反而是測試資料才會炸這種問題 wwwww
-	private static int find(List<Damage> list, Date date) {
-		if (list == null || list.isEmpty()) { return -1; }
-
-		int i = 0;
-
-		for (; i < list.size(); i++) {
-			if (date.equals(list.get(i).getDate())) {
-				return i;
-			}
-		}
-
-		i--;
-		return date.after(list.get(i).getDate()) ? i : - 1;
+		return playerData.get(player).getDiffDamage(date);
 	}
 
 	//Refactory GF

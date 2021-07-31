@@ -2,8 +2,6 @@ package us.dontcareabout.QtdClan.client.component;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
 
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.core.client.GWT;
@@ -20,7 +18,6 @@ import com.sencha.gxt.widget.core.client.grid.ColumnModel;
 
 import us.dontcareabout.QtdClan.client.common.DamageAnalyser;
 import us.dontcareabout.QtdClan.client.component.MemberGrid.Data;
-import us.dontcareabout.QtdClan.client.data.Damage;
 import us.dontcareabout.QtdClan.client.util.HtmlTemplate;
 import us.dontcareabout.QtdClan.client.vo.LevelMantissa;
 import us.dontcareabout.gxt.client.component.Grid2;
@@ -37,12 +34,11 @@ public class MemberGrid extends Grid2<Data> {
 	}
 
 	public void refresh(DamageAnalyser analyser) {
-		HashMap<String, List<Damage>> playerMap = analyser.byPlayer;
-		Date last = analyser.lastDate;
+		Date last = analyser.endDate;
 		ArrayList<Data> result = new ArrayList<>();
 		maxRatio = 0;
 
-		for (String player : playerMap.keySet()) {
+		for (String player : analyser.players) {
 			Data data = new Data();
 			data.setName(player);
 			data.setRatio(LevelMantissa.divide(analyser.getDamage(player, last), analyser.sum));
@@ -89,6 +85,7 @@ public class MemberGrid extends Grid2<Data> {
 	class Data {
 		String name;
 		Double ratio;
+		int attendance;
 
 		public String getName() {
 			return name;
