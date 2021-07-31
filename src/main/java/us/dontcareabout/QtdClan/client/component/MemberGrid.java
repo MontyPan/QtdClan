@@ -1,0 +1,114 @@
+package us.dontcareabout.QtdClan.client.component;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+
+import com.google.gwt.cell.client.AbstractCell;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.editor.client.Editor.Path;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.sencha.gxt.core.client.ValueProvider;
+import com.sencha.gxt.data.shared.ListStore;
+import com.sencha.gxt.data.shared.ModelKeyProvider;
+import com.sencha.gxt.data.shared.PropertyAccess;
+import com.sencha.gxt.data.shared.SortDir;
+import com.sencha.gxt.data.shared.Store.StoreSortInfo;
+import com.sencha.gxt.widget.core.client.grid.ColumnConfig;
+import com.sencha.gxt.widget.core.client.grid.ColumnModel;
+
+import us.dontcareabout.QtdClan.client.common.DamageAnalyser;
+import us.dontcareabout.QtdClan.client.component.MemberGrid.Data;
+import us.dontcareabout.QtdClan.client.data.Damage;
+import us.dontcareabout.QtdClan.client.util.HtmlTemplate;
+import us.dontcareabout.QtdClan.client.vo.LevelMantissa;
+import us.dontcareabout.gxt.client.component.Grid2;
+import us.dontcareabout.gxt.client.util.ColumnConfigBuilder;
+
+public class MemberGrid extends Grid2<Data> {
+	private static final Properties properties = GWT.create(Properties.class);
+
+	private double maxRatio;
+
+	public MemberGrid() {
+		init();
+		getView().setForceFit(true);
+	}
+
+	public void refresh(DamageAnalyser analyser) {
+		HashMap<String, List<Damage>> playerMap = analyser.byPlayer;
+		Date last = analyser.lastDate;
+		ArrayList<Data> result = new ArrayList<>();
+		maxRatio = 0;
+
+		for (String player : playerMap.keySet()) {
+			Data data = new Data();
+			data.setName(player);
+			data.setRatio(LevelMantissa.divide(analyser.getDamage(player, last), analyser.sum));
+
+			if (data.getRatio() > maxRatio) { maxRatio = data.getRatio(); }
+
+			result.add(data);
+		}
+
+		getStore().replaceAll(result);
+	}
+
+	@Override
+	protected ListStore<Data> genListStore() {
+		ListStore<Data> result = new ListStore<>(properties.key());
+		result.addSortInfo(new StoreSortInfo<>(properties.ratio(), SortDir.DESC));
+		return result;
+	}
+
+	@Override
+	protected ColumnModel<Data> genColumnModel() {
+		AbstractCell<Double> ratio = new AbstractCell<Double>() {
+			@Override
+			public void render(Context context, Double value, SafeHtmlBuilder sb) {
+				sb.append(
+					HtmlTemplate.tplt.ratioCell(
+						value / maxRatio * (maxRatio > 0.5 ? 100 : 75)
+					)
+				);
+			}
+		};
+		ArrayList<ColumnConfig<Data, ?>> list = new ArrayList<>();
+		list.add(
+			new ColumnConfigBuilder<Data, String>(properties.name())
+				.setHeader("名稱").build()
+		);
+		list.add(
+			new ColumnConfigBuilder<Data, Double>(properties.ratio())
+				.setHeader("貢獻度").setCell(ratio).build()
+		);
+		return new ColumnModel<>(list);
+	}
+
+	class Data {
+		String name;
+		Double ratio;
+
+		public String getName() {
+			return name;
+		}
+		public void setName(String name) {
+			this.name = name;
+		}
+		public Double getRatio() {
+			return ratio;
+		}
+		public void setRatio(Double ratio) {
+			this.ratio = ratio;
+		}
+	}
+
+	interface Properties extends PropertyAccess<Data> {
+		@Path("name")
+		ModelKeyProvider<Data> key();
+
+		ValueProvider<Data, String> name();
+		ValueProvider<Data, Double> ratio();
+	}
+}
