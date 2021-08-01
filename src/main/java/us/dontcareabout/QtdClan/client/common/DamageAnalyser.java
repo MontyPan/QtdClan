@@ -77,6 +77,10 @@ public class DamageAnalyser {
 		return playerData.get(player).getDiffDamage(date);
 	}
 
+	public int getAttendance(String player) {
+		return playerData.get(player).attendance;
+	}
+
 	//Refactory GF
 	private static <T, V> List<V> ensure(HashMap<T, List<V>> map, T key) {
 		List<V> list = map.get(key);
