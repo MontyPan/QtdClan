@@ -42,6 +42,7 @@ public class MemberGrid extends Grid2<Data> {
 			Data data = new Data();
 			data.setName(player);
 			data.setRatio(LevelMantissa.divide(analyser.getDamage(player, last), analyser.sum));
+			data.setAttendance(analyser.getAttendance(player));
 
 			if (data.getRatio() > maxRatio) { maxRatio = data.getRatio(); }
 
@@ -73,11 +74,15 @@ public class MemberGrid extends Grid2<Data> {
 		ArrayList<ColumnConfig<Data, ?>> list = new ArrayList<>();
 		list.add(
 			new ColumnConfigBuilder<Data, String>(properties.name())
-				.setHeader("名稱").build()
+				.setHeader("名稱").setWidth(80).build()
 		);
 		list.add(
 			new ColumnConfigBuilder<Data, Double>(properties.ratio())
-				.setHeader("貢獻度").setCell(ratio).build()
+				.setHeader("貢獻度").setWidth(100).setCell(ratio).build()
+		);
+		list.add(
+			new ColumnConfigBuilder<Data, Integer>(properties.attendance())
+				.setHeader("參戰天數").setWidth(60).centerStyle().build()
 		);
 		return new ColumnModel<>(list);
 	}
@@ -99,6 +104,12 @@ public class MemberGrid extends Grid2<Data> {
 		public void setRatio(Double ratio) {
 			this.ratio = ratio;
 		}
+		public int getAttendance() {
+			return attendance;
+		}
+		public void setAttendance(int attendance) {
+			this.attendance = attendance;
+		}
 	}
 
 	interface Properties extends PropertyAccess<Data> {
@@ -107,5 +118,6 @@ public class MemberGrid extends Grid2<Data> {
 
 		ValueProvider<Data, String> name();
 		ValueProvider<Data, Double> ratio();
+		ValueProvider<Data, Integer> attendance();
 	}
 }
