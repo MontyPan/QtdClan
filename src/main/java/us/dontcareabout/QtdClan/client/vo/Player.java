@@ -11,19 +11,25 @@ import us.dontcareabout.QtdClan.client.data.Damage;
 
 public class Player {
 	public final String name;
-	public final List<Damage> rawDamage;
+	public final LevelMantissa[] dayDamage;
 	public final LevelMantissa[] diffDamage;
 	public final int attendance;
+
+	@Deprecated
+	private final List<Damage> rawDamage;
 
 	public Player(String name, List<Damage> list, Date startDate, int days) {
 		this.name = name;
 		this.rawDamage = list;
+		this.dayDamage = new LevelMantissa[days];
 		this.diffDamage = new LevelMantissa[days];
 
 		int count = 0;
 
 		for (int i = 0; i < diffDamage.length; i++) {
-			diffDamage[i] = getDiffDamage(new DateWrapper(startDate).addDays(i).asDate());
+			Date date = new DateWrapper(startDate).addDays(i).asDate();
+			dayDamage[i] = getDamage(date);
+			diffDamage[i] = getDiffDamage(date);
 			if (!diffDamage[i].equals(LevelMantissa.ZERO)) { count++; }
 		}
 
