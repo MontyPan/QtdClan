@@ -99,6 +99,25 @@ public class DamageAnalyser {
 		return playerData.get(player);
 	}
 
+	/** @return 該玩家當天的排名，0 為第一名 */
+	public int findOrder(String player, int dayOffset) {
+		LevelMantissa damage = get(player).dayDamage[dayOffset];
+
+		if (LevelMantissa.ZERO.equals(damage)) { return 39; }
+
+		int result = 0;
+
+		for (String p : players) {
+			if (p.equals(player)) { continue; }
+
+			if (get(p).dayDamage[dayOffset].compareTo(damage) > 0) {
+				result++;
+			}
+		}
+
+		return result;
+	}
+
 	//Refactory GF
 	private static <T, V> List<V> ensure(HashMap<T, List<V>> map, T key) {
 		List<V> list = map.get(key);
