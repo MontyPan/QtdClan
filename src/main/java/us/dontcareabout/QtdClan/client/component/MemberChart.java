@@ -29,8 +29,12 @@ import com.sencha.gxt.data.shared.PropertyAccess;
 
 import us.dontcareabout.QtdClan.client.common.DamageAnalyser;
 import us.dontcareabout.QtdClan.client.component.MemberChart.Data;
+import us.dontcareabout.QtdClan.client.vo.LevelMantissa;
+import us.dontcareabout.QtdClan.client.vo.Player;
 
 public class MemberChart extends Chart<Data> {
+	public static final int CLAN_SIZE = 40;
+
 	private static final Properties properties = GWT.create(Properties.class);
 	private static final DateTimeFormat dateFormat = DateTimeFormat.getFormat("MM/dd");
 	private static NumberFormat numFormat = NumberFormat.getFormat("##.#%");
@@ -57,13 +61,13 @@ public class MemberChart extends Chart<Data> {
 		axisLeft.setPosition(Position.LEFT);
 		axisLeft.addField(properties.order());
 		axisLeft.setDisplayGrid(true);
-		axisLeft.setMaximum(40);
+		axisLeft.setMaximum(CLAN_SIZE);
 		axisLeft.setMinimum(1);
 		axisLeft.setInterval(5);
 		axisLeft.setLabelProvider(new LabelProvider<Number>() {
 			@Override
 			public String getLabel(Number item) {
-				return String.valueOf(41 - item.intValue());
+				return String.valueOf(CLAN_SIZE + 1 - item.intValue());
 			}
 		});
 
@@ -83,6 +87,30 @@ public class MemberChart extends Chart<Data> {
 		addSeries(line);
 		setLegend(legend);
 		setDefaultInsets(10);
+	}
+
+	public void refresh(DamageAnalyser analyser, String player) {
+		List<Data> list = new ArrayList<>();
+
+		timeAxis.setStartDate(analyser.startDate);
+		timeAxis.setEndDate(analyser.endDate);
+
+		DateWrapper date = new DateWrapper(analyser.startDate);
+		Player p = analyser.get(player);
+
+		for (int i = 0; i < analyser.days; i++) {
+			Data data = new Data();
+			data.setDate(date.addDays(i).asDate());
+			data.setTotalRatio(LevelMantissa.divide(p.dayDamage[i], analyser.daySum[i]));
+			data.setDayRatio(LevelMantissa.divide(p.diffDamage[i], analyser.diffSum[i]));
+			//如果該天完全沒有紀錄，就會遇到 diffSum 是 0 的狀態，所以擋一下 Orz
+			data.setDayRatio(Double.isNaN(data.getDayRatio()) ? 0 : data.getDayRatio());
+			data.setOrder(CLAN_SIZE - analyser.findOrder(player, i));
+			list.add(data);
+		}
+
+		store.replaceAll(list);
+		redrawChart();
 	}
 
 	private Series<Data> genBarSeries() {
@@ -109,28 +137,6 @@ public class MemberChart extends Chart<Data> {
 		result.setLegendTitles(Arrays.asList("總佔比", "日佔比"));
 		result.setLabelConfig(labelConfig);
 		return result;
-	}
-
-	public void refresh(DamageAnalyser analyser) {
-		List<Data> list = new ArrayList<>();
-
-		//FIXME
-		DateWrapper date = new DateWrapper(100, 1, 2);
-		timeAxis.setStartDate(date.asDate());
-		timeAxis.setEndDate(date.addDays(2).asDate());
-
-		int[] foo = {0, 39, 19};
-		for (int i = 0; i < foo.length; i++) {
-			Data data = new Data();
-			data.setDate(date.addDays(i).asDate());
-			data.setTotalRatio(Math.random());
-			data.setDayRatio(Math.random());
-			data.setOrder(40 - foo[i]);
-			list.add(data);
-		}
-
-		store.replaceAll(list);
-		redrawChart();
 	}
 
 	public class Data {
