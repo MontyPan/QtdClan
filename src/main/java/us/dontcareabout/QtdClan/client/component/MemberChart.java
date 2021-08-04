@@ -33,19 +33,18 @@ import us.dontcareabout.QtdClan.client.vo.LevelMantissa;
 import us.dontcareabout.QtdClan.client.vo.Player;
 
 public class MemberChart extends Chart<Data> {
-	public static final int CLAN_SIZE = 40;
-
 	private static final Properties properties = GWT.create(Properties.class);
 	private static final DateTimeFormat dateFormat = DateTimeFormat.getFormat("MM/dd");
-	private static NumberFormat numFormat = NumberFormat.getFormat("##.#%");
+	private static NumberFormat numFormat = NumberFormat.getFormat("##%");
 
-	private TimeAxis<Data> timeAxis = new TimeAxis<>();
 	private ListStore<Data> store = new ListStore<>(new ModelKeyProvider<Data>() {
 		@Override
 		public String getKey(Data item) {
 			return item.getDate().toString();
 		}
 	});
+	private TimeAxis<Data> timeAxis = new TimeAxis<>();
+	private NumericAxis<Data> axisLeft = new NumericAxis<Data>();
 
 	public MemberChart() {
 		timeAxis.setField(properties.date());
@@ -57,17 +56,14 @@ public class MemberChart extends Chart<Data> {
 		});
 		timeAxis.setDisplayGrid(true);
 
-		NumericAxis<Data> axisLeft = new NumericAxis<Data>();
 		axisLeft.setPosition(Position.LEFT);
 		axisLeft.addField(properties.order());
 		axisLeft.setDisplayGrid(true);
-		axisLeft.setMaximum(CLAN_SIZE);
 		axisLeft.setMinimum(1);
-		axisLeft.setInterval(5);
 		axisLeft.setLabelProvider(new LabelProvider<Number>() {
 			@Override
 			public String getLabel(Number item) {
-				return String.valueOf(CLAN_SIZE + 1 - item.intValue());
+				return String.valueOf(axisLeft.getMaximum() + 1 - item.intValue());
 			}
 		});
 
@@ -94,6 +90,7 @@ public class MemberChart extends Chart<Data> {
 
 		timeAxis.setStartDate(analyser.startDate);
 		timeAxis.setEndDate(analyser.endDate);
+		axisLeft.setMaximum(analyser.players.size());
 
 		DateWrapper date = new DateWrapper(analyser.startDate);
 		Player p = analyser.get(player);
@@ -105,7 +102,7 @@ public class MemberChart extends Chart<Data> {
 			data.setDayRatio(LevelMantissa.divide(p.diffDamage[i], analyser.diffSum[i]));
 			//如果該天完全沒有紀錄，就會遇到 diffSum 是 0 的狀態，所以擋一下 Orz
 			data.setDayRatio(Double.isNaN(data.getDayRatio()) ? 0 : data.getDayRatio());
-			data.setOrder(CLAN_SIZE - analyser.findOrder(player, i));
+			data.setOrder(analyser.players.size() - analyser.findOrder(player, i));
 			list.add(data);
 		}
 
@@ -115,6 +112,7 @@ public class MemberChart extends Chart<Data> {
 
 	private Series<Data> genBarSeries() {
 		TextSprite spriteConfig = new TextSprite();
+		spriteConfig.setX(-5);
 		spriteConfig.setY(-2);
 
 		SeriesLabelConfig<Data> labelConfig = new SeriesLabelConfig<Data>();

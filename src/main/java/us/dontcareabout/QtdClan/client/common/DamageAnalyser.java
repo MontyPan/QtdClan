@@ -103,7 +103,7 @@ public class DamageAnalyser {
 	public int findOrder(String player, int dayOffset) {
 		LevelMantissa damage = get(player).dayDamage[dayOffset];
 
-		if (LevelMantissa.ZERO.equals(damage)) { return 39; }
+		if (LevelMantissa.ZERO.equals(damage)) { return players.size() - 1; }
 
 		int result = 0;
 
