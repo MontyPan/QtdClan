@@ -77,6 +77,11 @@ public class Player {
 			if (date.equals(list.get(i).getDate())) {
 				return i;
 			}
+			if (date.before(list.get(i).getDate())) {
+				//會符合是因為缺了傳入日期的資料
+				//如果第零筆就也比垂入日期大，那回傳 -1 也合情合理 XD
+				return i - 1;
+			}
 		}
 
 		i--;
