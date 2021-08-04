@@ -26,10 +26,15 @@ public class Player {
 
 		int count = 0;
 
-		for (int i = 0; i < diffDamage.length; i++) {
+		for (int i = 0; i < days; i++) {
 			Date date = new DateWrapper(startDate).addDays(i).asDate();
 			dayDamage[i] = getDamage(date);
-			diffDamage[i] = getDiffDamage(date);
+		}
+
+		diffDamage[0] = dayDamage[0];
+
+		for (int i = 1; i < days; i++) {
+			diffDamage[i] = LevelMantissa.minus(dayDamage[i], dayDamage[i - 1]);
 			if (!diffDamage[i].equals(LevelMantissa.ZERO)) { count++; }
 		}
 
@@ -44,6 +49,7 @@ public class Player {
 		return new LevelMantissa(rawDamage.get(index));
 	}
 
+	@Deprecated
 	public LevelMantissa getDiffDamage(Date date) {
 		int index = find(rawDamage, date);
 
@@ -60,8 +66,8 @@ public class Player {
 	 * @return 如果 list 是空的、或是 list 內的時間都比傳入時間大，回傳 -1。
 	 * 	如果有指定日期，回傳指定日期的 index 值、否則回傳 list.size() - 1。
 	 */
-	//其實實際數據不會有這問題，只要第 x 天有紀錄，x + n 天都會有紀錄
-	//反而是測試資料才會炸這種問題 wwwww
+	//本來以為實際數據不會有這問題，因為只要第 x 天有紀錄，x + n 天都會有紀錄
+	//但實際上... 還是有，比如說地 x + 1 天退出，那之後就不會有紀錄了 wwwwww
 	private static int find(List<Damage> list, Date date) {
 		if (list == null || list.isEmpty()) { return -1; }
 
