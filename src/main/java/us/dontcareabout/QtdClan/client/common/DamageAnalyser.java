@@ -27,9 +27,13 @@ public class DamageAnalyser {
 
 	public final Date startDate;
 	public final Date endDate;
-	public final LevelMantissa sum;
+	public final int days;
 	public final Set<String> players;
 	public final HashMap<String, Player> playerData = new HashMap<>();
+
+	public final LevelMantissa sum;
+	public final LevelMantissa[] daySum;
+	public final LevelMantissa[] diffSum;
 
 	public DamageAnalyser(int session, List<Damage> list) {
 		this.session = session;
@@ -49,7 +53,7 @@ public class DamageAnalyser {
 		players = byPlayer.keySet();
 		startDate = start;
 		endDate = end;
-		int days = CalendarUtil.getDaysBetween(start, end) + 1;
+		days = CalendarUtil.getDaysBetween(start, end) + 1;
 
 		//保險起見，按照日期排序一下
 		for (String player : players) {
@@ -60,25 +64,39 @@ public class DamageAnalyser {
 			);
 		}
 
-		LevelMantissa sum = LevelMantissa.ZERO;
+		this.daySum = new LevelMantissa[days];
+		this.diffSum = new LevelMantissa[days];
 
-		for (String player : players) {
-			sum = LevelMantissa.plus(sum, getDamage(player, end));
+		for (int i = 0; i < days; i++) {
+			daySum[i] = LevelMantissa.ZERO;
+			diffSum[i] = LevelMantissa.ZERO;
+
+			for (String player : players) {
+				Player p = get(player);
+				daySum[i] = LevelMantissa.plus(daySum[i], p.dayDamage[i]);
+				diffSum[i] = LevelMantissa.plus(diffSum[i], p.diffDamage[i]);
+			}
 		}
 
-		this.sum = sum;
+		this.sum = daySum[days - 1];
 	}
 
+	@Deprecated
 	public LevelMantissa getDamage(String player, Date date) {
-		return playerData.get(player).getDamage(date);
+		return get(player).getDamage(date);
 	}
 
+	@Deprecated
 	public LevelMantissa getDiffDamage(String player, Date date) {
-		return playerData.get(player).getDiffDamage(date);
+		return get(player).getDiffDamage(date);
 	}
 
 	public int getAttendance(String player) {
-		return playerData.get(player).attendance;
+		return get(player).attendance;
+	}
+
+	public Player get(String player) {
+		return playerData.get(player);
 	}
 
 	//Refactory GF
