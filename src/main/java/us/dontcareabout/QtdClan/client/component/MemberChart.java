@@ -18,8 +18,11 @@ import com.sencha.gxt.chart.client.chart.series.Series;
 import com.sencha.gxt.chart.client.chart.series.Series.LabelPosition;
 import com.sencha.gxt.chart.client.chart.series.SeriesLabelConfig;
 import com.sencha.gxt.chart.client.chart.series.SeriesLabelProvider;
+import com.sencha.gxt.chart.client.chart.series.SeriesRenderer;
 import com.sencha.gxt.chart.client.draw.RGB;
+import com.sencha.gxt.chart.client.draw.sprite.Sprite;
 import com.sencha.gxt.chart.client.draw.sprite.TextSprite;
+import com.sencha.gxt.chart.client.draw.sprite.TextSprite.TextAnchor;
 import com.sencha.gxt.core.client.ValueProvider;
 import com.sencha.gxt.core.client.util.DateWrapper;
 import com.sencha.gxt.data.shared.LabelProvider;
@@ -35,7 +38,7 @@ import us.dontcareabout.QtdClan.client.vo.Player;
 public class MemberChart extends Chart<Data> {
 	private static final Properties properties = GWT.create(Properties.class);
 	private static final DateTimeFormat dateFormat = DateTimeFormat.getFormat("MM/dd");
-	private static NumberFormat numFormat = NumberFormat.getFormat("##%");
+	private static final NumberFormat numFormat = NumberFormat.getFormat("##.#");
 
 	private ListStore<Data> store = new ListStore<>(new ModelKeyProvider<Data>() {
 		@Override
@@ -45,6 +48,7 @@ public class MemberChart extends Chart<Data> {
 	});
 	private TimeAxis<Data> timeAxis = new TimeAxis<>();
 	private NumericAxis<Data> axisLeft = new NumericAxis<Data>();
+	private NumericAxis<Data> axisRight = new NumericAxis<Data>();
 
 	public MemberChart() {
 		timeAxis.setField(properties.date());
@@ -55,6 +59,11 @@ public class MemberChart extends Chart<Data> {
 			}
 		});
 		timeAxis.setDisplayGrid(true);
+
+		axisRight.setPosition(Position.RIGHT);
+		axisRight.addField(properties.dayRatio());
+		axisRight.addField(properties.totalRatio());
+		axisRight.setHidden(true);	//只打算設定上限、沒打算顯示
 
 		axisLeft.setPosition(Position.LEFT);
 		axisLeft.addField(properties.order());
@@ -77,23 +86,24 @@ public class MemberChart extends Chart<Data> {
 		Legend<Data> legend = new Legend<>();
 
 		setStore(store);
-		addAxis(axisLeft);
 		addAxis(timeAxis);
+		addAxis(axisLeft);
+		addAxis(axisRight);
 		addSeries(genBarSeries());
 		addSeries(line);
 		setLegend(legend);
 		setDefaultInsets(10);
+
+		waitPlayer();
 	}
 
 	public void refresh(DamageAnalyser analyser, String player) {
+		//TODO 顯示姓名
 		List<Data> list = new ArrayList<>();
-
-		timeAxis.setStartDate(analyser.startDate);
-		timeAxis.setEndDate(analyser.endDate);
-		axisLeft.setMaximum(analyser.players.size());
 
 		DateWrapper date = new DateWrapper(analyser.startDate);
 		Player p = analyser.get(player);
+		double maxRatio = 0;
 
 		for (int i = 0; i < analyser.days; i++) {
 			Data data = new Data();
@@ -104,35 +114,65 @@ public class MemberChart extends Chart<Data> {
 			data.setDayRatio(Double.isNaN(data.getDayRatio()) ? 0 : data.getDayRatio());
 			data.setOrder(analyser.players.size() - analyser.findOrder(player, i));
 			list.add(data);
+
+			if (data.getTotalRatio() > maxRatio) { maxRatio = data.getTotalRatio(); }
+			if (data.getDayRatio() > maxRatio) { maxRatio = data.getDayRatio(); }
 		}
+
+		timeAxis.setStartDate(analyser.startDate);
+		timeAxis.setEndDate(analyser.endDate);
+		axisLeft.setMaximum(analyser.players.size());
+		axisRight.setMaximum(maxRatio * 1.05);
 
 		store.replaceAll(list);
 		redrawChart();
+		unmask();
+	}
+
+	public void waitPlayer() {
+		mask("請選擇隊員");
 	}
 
 	private Series<Data> genBarSeries() {
+		final String zeroText = "X";
+		final RGB zeroColor = new RGB("#bdbdbd");
+		final RGB totalColor = new RGB("#1976d2");
+		final RGB dayColor = new RGB("#4fc3f7");
+
 		TextSprite spriteConfig = new TextSprite();
-		spriteConfig.setX(-5);
 		spriteConfig.setY(-2);
+		spriteConfig.setTextAnchor(TextAnchor.MIDDLE);
 
 		SeriesLabelConfig<Data> labelConfig = new SeriesLabelConfig<Data>();
 		labelConfig.setLabelPosition(LabelPosition.OUTSIDE);
 		labelConfig.setLabelProvider(new SeriesLabelProvider<Data>() {
 			@Override
 			public String getLabel(Data item, ValueProvider<? super Data, ? extends Number> vp) {
-				return numFormat.format(vp.getValue(item));
+				Number value = vp.getValue(item);
+				if (value.doubleValue() == 0) { return zeroText; }
+				return value.doubleValue() < 0.001 ? "0+" : numFormat.format(vp.getValue(item).doubleValue() * 100.0);
 			}
 		});
 		labelConfig.setSpriteConfig(spriteConfig);
+		labelConfig.setSpriteRenderer(new SeriesRenderer<Data>() {
+			@Override
+			public void spriteRenderer(Sprite sprite, int index, ListStore<Data> store) {
+				TextSprite ts = (TextSprite)sprite;
+				ts.setFill(
+					zeroText.equals(ts.getText()) ? zeroColor : RGB.BLACK
+				);
+			}
+		});
 
 		BarSeries<Data> result = new BarSeries<>();
-		result.addYField(properties.totalRatio());
-		result.addColor(new RGB("#1976d2"));
+		result.setYAxisPosition(Position.RIGHT);
 		result.addYField(properties.dayRatio());
-		result.addColor(new RGB("#4fc3f7"));
+		result.addColor(dayColor);
+		result.addYField(properties.totalRatio());
+		result.addColor(totalColor);
 		result.setColumn(true);
 		result.setGroupGutter(5);
-		result.setLegendTitles(Arrays.asList("總佔比", "日佔比"));
+		result.setLegendTitles(Arrays.asList("日佔比", "總佔比"));
 		result.setLabelConfig(labelConfig);
 		return result;
 	}
