@@ -6,6 +6,8 @@ import java.util.Date;
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.editor.client.Editor.Path;
+import com.google.gwt.event.logical.shared.SelectionHandler;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.sencha.gxt.core.client.ValueProvider;
 import com.sencha.gxt.data.shared.ListStore;
@@ -52,6 +54,10 @@ public class MemberGrid extends Grid2<Data> {
 		getStore().replaceAll(result);
 	}
 
+	public HandlerRegistration addSelectionHandler(SelectionHandler<Data> h) {
+		return getSelectionModel().addSelectionHandler(h);
+	}
+
 	@Override
 	protected ListStore<Data> genListStore() {
 		ListStore<Data> result = new ListStore<>(properties.key());
@@ -87,7 +93,7 @@ public class MemberGrid extends Grid2<Data> {
 		return new ColumnModel<>(list);
 	}
 
-	class Data {
+	public class Data {
 		String name;
 		Double ratio;
 		int attendance;
