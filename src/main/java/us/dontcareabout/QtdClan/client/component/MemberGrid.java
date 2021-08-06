@@ -1,7 +1,6 @@
 package us.dontcareabout.QtdClan.client.component;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.core.client.GWT;
@@ -36,14 +35,13 @@ public class MemberGrid extends Grid2<Data> {
 	}
 
 	public void refresh(DamageAnalyser analyser) {
-		Date last = analyser.endDate;
 		ArrayList<Data> result = new ArrayList<>();
 		maxRatio = 0;
 
 		for (String player : analyser.players) {
 			Data data = new Data();
 			data.setName(player);
-			data.setRatio(LevelMantissa.divide(analyser.getDamage(player, last), analyser.sum));
+			data.setRatio(LevelMantissa.divide(analyser.get(player).dayDamage[analyser.days - 1], analyser.sum));
 			data.setAttendance(analyser.getAttendance(player));
 
 			if (data.getRatio() > maxRatio) { maxRatio = data.getRatio(); }

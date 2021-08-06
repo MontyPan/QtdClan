@@ -81,16 +81,6 @@ public class DamageAnalyser {
 		this.sum = daySum[days - 1];
 	}
 
-	@Deprecated
-	public LevelMantissa getDamage(String player, Date date) {
-		return get(player).getDamage(date);
-	}
-
-	@Deprecated
-	public LevelMantissa getDiffDamage(String player, Date date) {
-		return get(player).getDiffDamage(date);
-	}
-
 	public int getAttendance(String player) {
 		return get(player).attendance;
 	}

@@ -15,12 +15,8 @@ public class Player {
 	public final LevelMantissa[] diffDamage;
 	public final int attendance;
 
-	@Deprecated
-	private final List<Damage> rawDamage;
-
 	public Player(String name, List<Damage> list, Date startDate, int days) {
 		this.name = name;
-		this.rawDamage = list;
 		this.dayDamage = new LevelMantissa[days];
 		this.diffDamage = new LevelMantissa[days];
 
@@ -28,7 +24,7 @@ public class Player {
 
 		for (int i = 0; i < days; i++) {
 			Date date = new DateWrapper(startDate).addDays(i).asDate();
-			dayDamage[i] = getDamage(date);
+			dayDamage[i] = getDamage(list, date);
 		}
 
 		diffDamage[0] = dayDamage[0];
@@ -41,25 +37,12 @@ public class Player {
 		attendance = count;
 	}
 
-	public LevelMantissa getDamage(Date date) {
-		int index = find(rawDamage, date);
+	private static LevelMantissa getDamage(List<Damage> list, Date date) {
+		int index = find(list, date);
 
 		if (index == -1) { return ZERO; }
 
-		return new LevelMantissa(rawDamage.get(index));
-	}
-
-	@Deprecated
-	public LevelMantissa getDiffDamage(Date date) {
-		int index = find(rawDamage, date);
-
-		if (index == -1) { return ZERO; }
-		if (index == 0) { return new LevelMantissa(rawDamage.get(0)); }
-
-		return LevelMantissa.minus(
-			new LevelMantissa(rawDamage.get(index)),
-			new LevelMantissa(rawDamage.get(index - 1))
-		);
+		return new LevelMantissa(list.get(index));
 	}
 
 	/**
