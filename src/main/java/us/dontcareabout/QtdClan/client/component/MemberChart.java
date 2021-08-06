@@ -47,8 +47,9 @@ public class MemberChart extends Chart<Data> {
 		}
 	});
 	private TimeAxis<Data> timeAxis = new TimeAxis<>();
-	private NumericAxis<Data> axisLeft = new NumericAxis<Data>();
-	private NumericAxis<Data> axisRight = new NumericAxis<Data>();
+	private NumericAxis<Data> axisLeft = new NumericAxis<>();
+	private NumericAxis<Data> axisRight = new NumericAxis<>();
+	private TextSprite nameTS = new TextSprite();
 
 	public MemberChart() {
 		timeAxis.setField(properties.date());
@@ -94,11 +95,23 @@ public class MemberChart extends Chart<Data> {
 		setLegend(legend);
 		setDefaultInsets(10);
 
+		//用 GF 的 TextUtil 動態設定 y 會出靈異現象
+		//反正玩家名稱有字數上限，所以乾脆寫死 y 跟 font size 就算了 [眼神死]
+		nameTS.setY(15);
+		nameTS.setFontSize(36);
+		nameTS.setFill(RGB.BLACK);
+		nameTS.setFillOpacity(0.3);
+		nameTS.setZIndex(10000);
+		addSprite(nameTS);
+
 		waitPlayer();
 	}
 
 	public void refresh(DamageAnalyser analyser, String player) {
-		//TODO 顯示姓名
+		nameTS.setText(player);
+		nameTS.redraw();
+		//以實驗結果來反推，redrawChart() 不會讓整個 DrawComponent redraw
+
 		List<Data> list = new ArrayList<>();
 
 		DateWrapper date = new DateWrapper(analyser.startDate);
@@ -131,6 +144,12 @@ public class MemberChart extends Chart<Data> {
 
 	public void waitPlayer() {
 		mask("請選擇隊員");
+	}
+
+	@Override
+	public void onResize(int width, int height) {
+		nameTS.setX(width - 280);
+		super.onResize(width, height);
 	}
 
 	private Series<Data> genBarSeries() {
