@@ -71,7 +71,7 @@ public class SeasonSelectPanel extends FramedPanel implements IsDialogWidget {
 				}
 			);
 
-			for (int i = DateUtil.nowSession(); i >= 1; i--) {
+			for (int i = DateUtil.nowSeason(); i >= 1; i--) {
 				getStore().add(i);
 			}
 

@@ -75,8 +75,8 @@ public class SeasonLayer extends LayerContainer {
 		void setSession(int i) {
 			nameTS.setText("第 N + " + i + " 季");
 			dateTS.setText(
-				dateFormat.format(DateUtil.sessionStart(i)) + "～" +
-				dateFormat.format(DateUtil.sessionEnd(i))
+				dateFormat.format(DateUtil.seasonStart(i)) + "～" +
+				dateFormat.format(DateUtil.seasonEnd(i))
 			);
 			redraw();
 		}

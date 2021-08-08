@@ -21,7 +21,7 @@ public class DataCenter {
 	public static void wantDamage(int session) {
 		//第一個 tab 是 boss 進度，第二個是賽季紀錄
 		//第三個才是當前賽季、第 3+N 個是往前 N 個賽季...
-		int sessionIndex = 3 + DateUtil.nowSession() - session;
+		int sessionIndex = 3 + DateUtil.nowSeason() - session;
 		SheetHappen.<Damage>get(SheetIdDao.defaultValue(), sessionIndex, new Callback<Damage>() {
 			@Override
 			public void onSuccess(Sheet<Damage> gs) {
