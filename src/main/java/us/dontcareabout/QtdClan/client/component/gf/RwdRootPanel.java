@@ -3,7 +3,6 @@ package us.dontcareabout.QtdClan.client.component.gf;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.sencha.gxt.widget.core.client.Component;
-import com.sencha.gxt.widget.core.client.Window;
 import com.sencha.gxt.widget.core.client.container.Viewport;
 
 /**
@@ -11,7 +10,6 @@ import com.sencha.gxt.widget.core.client.container.Viewport;
  * 另外還提供：
  * <ul>
  * 	<li>mask（{@link #block(String)}）與 unmask（{@link #unblock()}）</li>
- * 	<li>顯示、關閉 dialog</li>
  * <ul>
  */
 //目前沒有打算提供「device 改變時炸 event」的功能
@@ -93,32 +91,6 @@ public class RwdRootPanel extends Viewport {
 			instance = new RwdRootPanel();
 			RootPanel.get().add(instance);
 		}
-	}
-
-	//本來是走 private final 那一套
-	//但實務上會有一些東西要設定，例如 setHeaderVisible() 之類的
-	//然後又發現 setHeaderVisible() 會讓 header 有奇妙的高度改變...... (ry
-	//所以改成直接開放 access + buildDialog()，caller 要怎麼搞就... 去吧 XD
-	public static Window dialog;
-	static { buildDialog(); }
-
-	public static void buildDialog() {
-		dialog = new Window();
-		dialog.setModal(true);
-		dialog.setResizable(false);
-		dialog.setHeaderVisible(true);
-	}
-
-	public static void closeDialog() {
-		dialog.hide();
-	}
-
-	public static void showDialog(Widget widget, int width, int height) {
-		dialog.clear();
-		dialog.add(widget);
-		dialog.show();
-		dialog.setPixelSize(width, height);
-		dialog.center();
 	}
 
 	//////////////////////////////////////////////////////////////////
