@@ -2,8 +2,15 @@ package us.dontcareabout.QtdClan.client.layer;
 
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.sencha.gxt.chart.client.draw.RGB;
+import com.sencha.gxt.chart.client.draw.sprite.SpriteSelectionEvent;
+import com.sencha.gxt.chart.client.draw.sprite.SpriteSelectionEvent.SpriteSelectionHandler;
 
 import us.dontcareabout.QtdClan.client.common.DateUtil;
+import us.dontcareabout.QtdClan.client.component.SeasonSelectPanel;
+import us.dontcareabout.QtdClan.client.component.gf.PopUtil;
+import us.dontcareabout.QtdClan.client.data.DataCenter;
+import us.dontcareabout.QtdClan.client.data.SeasonChangeEvent;
+import us.dontcareabout.QtdClan.client.data.SeasonChangeEvent.SeasonChangeHandler;
 import us.dontcareabout.gxt.client.draw.Cursor;
 import us.dontcareabout.gxt.client.draw.LTextSprite;
 import us.dontcareabout.gxt.client.draw.LayerContainer;
@@ -12,12 +19,25 @@ import us.dontcareabout.gxt.client.draw.LayerSprite;
 public class SeasonLayer extends LayerContainer {
 	public static final DateTimeFormat dateFormat = DateTimeFormat.getFormat("yyyy/MM/dd");
 
-	private int session = DateUtil.nowSession();
+	private static final SeasonSelectPanel seasonSelect = new SeasonSelectPanel();
+
 	private NameLayer nameL = new NameLayer();
 
 	public SeasonLayer() {
 		addLayer(nameL);
-		nameL.setSession(session);
+		nameL.addSpriteSelectionHandler(new SpriteSelectionHandler() {
+			@Override
+			public void onSpriteSelect(SpriteSelectionEvent event) {
+				PopUtil.showDialog(seasonSelect);
+			}
+		});
+
+		DataCenter.addSeasonChange(new SeasonChangeHandler() {
+			@Override
+			public void onSelectSeasonChange(SeasonChangeEvent event) {
+				nameL.setSession(event.data);
+			}
+		});
 	}
 
 	@Override
