@@ -6,8 +6,6 @@ import java.util.Date;
 import java.util.List;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.i18n.client.NumberFormat;
 import com.sencha.gxt.chart.client.chart.Chart;
 import com.sencha.gxt.chart.client.chart.Legend;
 import com.sencha.gxt.chart.client.chart.axis.NumericAxis;
@@ -32,13 +30,12 @@ import com.sencha.gxt.data.shared.PropertyAccess;
 
 import us.dontcareabout.QtdClan.client.common.DamageAnalyser;
 import us.dontcareabout.QtdClan.client.component.MemberChart.Data;
+import us.dontcareabout.QtdClan.client.util.Format;
 import us.dontcareabout.QtdClan.client.vo.LevelMantissa;
 import us.dontcareabout.QtdClan.client.vo.Player;
 
 public class MemberChart extends Chart<Data> {
 	private static final Properties properties = GWT.create(Properties.class);
-	private static final DateTimeFormat dateFormat = DateTimeFormat.getFormat("MM/dd");
-	private static final NumberFormat numFormat = NumberFormat.getFormat("##.#");
 
 	private ListStore<Data> store = new ListStore<>(new ModelKeyProvider<Data>() {
 		@Override
@@ -56,7 +53,7 @@ public class MemberChart extends Chart<Data> {
 		timeAxis.setLabelProvider(new LabelProvider<Date>() {
 			@Override
 			public String getLabel(Date item) {
-				return dateFormat.format(item);
+				return Format.shortDate(item);
 			}
 		});
 		timeAxis.setDisplayGrid(true);
@@ -169,7 +166,7 @@ public class MemberChart extends Chart<Data> {
 			public String getLabel(Data item, ValueProvider<? super Data, ? extends Number> vp) {
 				Number value = vp.getValue(item);
 				if (value.doubleValue() == 0) { return zeroText; }
-				return value.doubleValue() < 0.001 ? "0+" : numFormat.format(vp.getValue(item).doubleValue() * 100.0);
+				return value.doubleValue() < 0.001 ? "0+" : Format.xx_x(vp.getValue(item).doubleValue() * 100.0);
 			}
 		});
 		labelConfig.setSpriteConfig(spriteConfig);
