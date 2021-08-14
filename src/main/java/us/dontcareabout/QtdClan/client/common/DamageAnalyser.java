@@ -1,8 +1,6 @@
 package us.dontcareabout.QtdClan.client.common;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -15,13 +13,6 @@ import us.dontcareabout.QtdClan.client.vo.LevelMantissa;
 import us.dontcareabout.QtdClan.client.vo.Player;
 
 public class DamageAnalyser {
-	private static final Comparator<Damage> compareDate = new Comparator<Damage>() {
-		@Override
-		public int compare(Damage o1, Damage o2) {
-			return o1.getDate().compareTo(o2.getDate());
-		}
-	};
-
 	public final int session;
 	public final List<Damage> list;
 
@@ -55,9 +46,7 @@ public class DamageAnalyser {
 		endDate = end;
 		days = CalendarUtil.getDaysBetween(start, end) + 1;
 
-		//保險起見，按照日期排序一下
 		for (String player : players) {
-			Collections.sort(byPlayer.get(player), compareDate);
 			playerData.put(
 				player,
 				new Player(player, byPlayer.get(player), startDate, days)

@@ -2,6 +2,8 @@ package us.dontcareabout.QtdClan.client.vo;
 
 import static us.dontcareabout.QtdClan.client.vo.LevelMantissa.ZERO;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -10,12 +12,22 @@ import com.sencha.gxt.core.client.util.DateWrapper;
 import us.dontcareabout.QtdClan.client.data.Damage;
 
 public class Player {
+	private static final Comparator<Damage> compareDate = new Comparator<Damage>() {
+		@Override
+		public int compare(Damage o1, Damage o2) {
+			return o1.getDate().compareTo(o2.getDate());
+		}
+	};
+
 	public final String name;
 	public final LevelMantissa[] dayDamage;
 	public final LevelMantissa[] diffDamage;
 	public final int attendance;
 
 	public Player(String name, List<Damage> list, Date startDate, int days) {
+		//保險起見，按照日期排序一下
+		Collections.sort(list, compareDate);
+
 		this.name = name;
 		this.dayDamage = new LevelMantissa[days];
 		this.diffDamage = new LevelMantissa[days];
