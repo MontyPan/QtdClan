@@ -1,5 +1,8 @@
 package us.dontcareabout.QtdClan.client.data;
 
+import java.util.ArrayList;
+import java.util.Date;
+
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.event.shared.SimpleEventBus;
 
@@ -7,7 +10,9 @@ import us.dontcareabout.QtdClan.client.common.DamageAnalyser;
 import us.dontcareabout.QtdClan.client.common.DateUtil;
 import us.dontcareabout.QtdClan.client.data.DamageReadyEvent.DamageReadyHandler;
 import us.dontcareabout.QtdClan.client.data.SeasonChangeEvent.SeasonChangeHandler;
+import us.dontcareabout.QtdClan.client.data.TrendReadyEvent.TrendReadyHandler;
 import us.dontcareabout.QtdClan.client.vo.Damage;
+import us.dontcareabout.QtdClan.client.vo.Trend;
 import us.dontcareabout.gst.client.data.SheetIdDao;
 import us.dontcareabout.gwt.client.Console;
 import us.dontcareabout.gwt.client.google.Sheet;
@@ -39,6 +44,39 @@ public class DataCenter {
 
 	public static HandlerRegistration addDamageReady(DamageReadyHandler handler) {
 		return eventBus.addHandler(DamageReadyEvent.TYPE, handler);
+	}
+
+	////////
+
+	public static ArrayList<Trend> trend;
+
+	public static void wantTrend() {
+		SheetHappen.<Trend>get(SheetIdDao.defaultValue(), 1, new Callback<Trend>() {
+			@Override
+			public void onSuccess(Sheet<Trend> gs) {
+				trend = gs.getEntry();
+				eventBus.fireEvent(new TrendReadyEvent());
+			}
+
+			@Override
+			public void onError(Throwable exception) {
+				Console.log(exception);
+			}
+		});
+	}
+
+	public static HandlerRegistration addTrendReady(TrendReadyHandler handler) {
+		return eventBus.addHandler(TrendReadyEvent.TYPE, handler);
+	}
+
+	public static Trend findTrend(Date date) {
+		for (Trend t : trend) {
+			if (t.getDate().equals(date)) {
+				return t;
+			}
+		}
+
+		return null;
 	}
 
 	////////
