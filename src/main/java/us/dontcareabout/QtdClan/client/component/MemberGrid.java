@@ -42,7 +42,7 @@ public class MemberGrid extends Grid2<Data> {
 			Data data = new Data();
 			data.setName(player);
 			data.setRatio(LevelMantissa.divide(analyser.get(player).dayDamage[analyser.days - 1], analyser.sum));
-			data.setAttendance(analyser.getAttendance(player));
+			data.setAttendance(analyser.get(player).attendance);
 
 			if (data.getRatio() > maxRatio) { maxRatio = data.getRatio(); }
 

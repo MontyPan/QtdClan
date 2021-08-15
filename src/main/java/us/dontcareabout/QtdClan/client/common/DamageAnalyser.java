@@ -25,6 +25,7 @@ public class DamageAnalyser {
 	public final LevelMantissa sum;
 	public final LevelMantissa[] daySum;
 	public final LevelMantissa[] diffSum;
+	public final int[] attendance;
 
 	public DamageAnalyser(int session, List<Damage> list) {
 		this.session = session;
@@ -55,6 +56,7 @@ public class DamageAnalyser {
 
 		this.daySum = new LevelMantissa[days];
 		this.diffSum = new LevelMantissa[days];
+		this.attendance = new int[days];
 
 		for (int i = 0; i < days; i++) {
 			daySum[i] = LevelMantissa.ZERO;
@@ -64,14 +66,14 @@ public class DamageAnalyser {
 				Player p = get(player);
 				daySum[i] = LevelMantissa.plus(daySum[i], p.dayDamage[i]);
 				diffSum[i] = LevelMantissa.plus(diffSum[i], p.diffDamage[i]);
+
+				if (!p.diffDamage[i].equals(LevelMantissa.ZERO)) {
+					attendance[i]++;
+				}
 			}
 		}
 
 		this.sum = daySum[days - 1];
-	}
-
-	public int getAttendance(String player) {
-		return get(player).attendance;
 	}
 
 	public Player get(String player) {
