@@ -7,6 +7,7 @@ import us.dontcareabout.QtdClan.client.common.DamageAnalyser;
 import us.dontcareabout.QtdClan.client.common.DateUtil;
 import us.dontcareabout.QtdClan.client.data.DamageReadyEvent.DamageReadyHandler;
 import us.dontcareabout.QtdClan.client.data.SeasonChangeEvent.SeasonChangeHandler;
+import us.dontcareabout.QtdClan.client.vo.Damage;
 import us.dontcareabout.gst.client.data.SheetIdDao;
 import us.dontcareabout.gwt.client.Console;
 import us.dontcareabout.gwt.client.google.Sheet;

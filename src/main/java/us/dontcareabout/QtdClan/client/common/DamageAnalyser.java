@@ -8,7 +8,7 @@ import java.util.Set;
 
 import com.google.gwt.user.datepicker.client.CalendarUtil;
 
-import us.dontcareabout.QtdClan.client.data.Damage;
+import us.dontcareabout.QtdClan.client.vo.Damage;
 import us.dontcareabout.QtdClan.client.vo.LevelMantissa;
 import us.dontcareabout.QtdClan.client.vo.Player;
 

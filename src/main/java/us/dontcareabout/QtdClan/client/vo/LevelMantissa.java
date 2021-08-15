@@ -4,8 +4,6 @@ import java.util.Objects;
 
 import com.google.common.base.Preconditions;
 
-import us.dontcareabout.QtdClan.client.data.Damage;
-
 public class LevelMantissa implements Comparable<LevelMantissa> {
 	public static LevelMantissa ZERO = new LevelMantissa(0, 0);
 

@@ -1,4 +1,4 @@
-package us.dontcareabout.QtdClan.client.data;
+package us.dontcareabout.QtdClan.client.vo;
 
 import java.util.Date;
 

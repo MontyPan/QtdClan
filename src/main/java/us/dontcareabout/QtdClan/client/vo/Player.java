@@ -9,8 +9,6 @@ import java.util.List;
 
 import com.sencha.gxt.core.client.util.DateWrapper;
 
-import us.dontcareabout.QtdClan.client.data.Damage;
-
 public class Player {
 	private static final Comparator<Damage> compareDate = new Comparator<Damage>() {
 		@Override
