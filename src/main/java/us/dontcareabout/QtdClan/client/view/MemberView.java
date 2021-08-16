@@ -41,9 +41,11 @@ public class MemberView extends GFComposite {
 				@Override
 				public void onDamageReady(DamageReadyEvent event) {
 					grid.refresh(damageAnalyser);
+					chart.waitPlayer();
 				}
 			})
 		);
+		grid.refresh(damageAnalyser);
 	}
 
 	interface MemberViewUiBinder extends UiBinder<Widget, MemberView> {}
