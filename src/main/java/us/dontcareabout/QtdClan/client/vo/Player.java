@@ -30,18 +30,21 @@ public class Player {
 		this.dayDamage = new LevelMantissa[days];
 		this.diffDamage = new LevelMantissa[days];
 
-		int count = 0;
-
 		for (int i = 0; i < days; i++) {
 			Date date = new DateWrapper(startDate).addDays(i).asDate();
 			dayDamage[i] = getDamage(list, date);
 		}
 
 		diffDamage[0] = dayDamage[0];
-
 		for (int i = 1; i < days; i++) {
 			diffDamage[i] = LevelMantissa.minus(dayDamage[i], dayDamage[i - 1]);
-			if (!diffDamage[i].equals(LevelMantissa.ZERO)) { count++; }
+		}
+
+		int count = 0;
+		for (int i = 0; i < days; i++) {
+			if (!LevelMantissa.ZERO.equals(diffDamage[i])) {
+				count++;
+			}
 		}
 
 		attendance = count;
