@@ -7,10 +7,15 @@ import com.google.gwt.i18n.client.NumberFormat;
 
 public class Format {
 	private static final DateTimeFormat shortDate = DateTimeFormat.getFormat("MM/dd");
+	private static final DateTimeFormat yyyyMMdd = DateTimeFormat.getFormat("yyyyMMdd");
 	private static final NumberFormat xx_x = NumberFormat.getFormat("##.#");
 
 	public static String shortDate(Date d) {
 		return shortDate.format(d);
+	}
+
+	public static String yyyyMMdd(Date d) {
+		return yyyyMMdd.format(d);
 	}
 
 	public static String xx_x(Number n) {
