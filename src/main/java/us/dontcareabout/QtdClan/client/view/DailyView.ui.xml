@@ -1,0 +1,28 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:c="urn:import:com.sencha.gxt.widget.core.client.container"
+	xmlns:core="urn:import:com.sencha.gxt.widget.core.client"
+	xmlns:qtd="urn:import:us.dontcareabout.QtdClan.client.component" xmlns:f="urn:import:com.sencha.gxt.widget.core.client.form">
+	
+	<ui:with field="southMargin" type="com.sencha.gxt.core.client.util.Margins" >
+		<ui:attributes top="10" right="100" bottom="0" left="100" />
+	</ui:with>
+	<ui:with field="westLD" type="com.sencha.gxt.widget.core.client.container.BorderLayoutContainer.BorderLayoutData">
+		<ui:attributes size="400" />
+	</ui:with>
+	<ui:with field="southLD" type="com.sencha.gxt.widget.core.client.container.BorderLayoutContainer.BorderLayoutData">
+		<ui:attributes size="30" margins="{southMargin}" />
+	</ui:with>
+	
+	<c:BorderLayoutContainer>
+		<c:west layoutData="{westLD}">
+			<qtd:DailyBoard ui:field="board" />
+		</c:west>
+		<c:center>
+			<qtd:DayRatioPie ui:field="dayPie" />
+		</c:center>
+		<c:south layoutData="{southLD}">
+			<core:Slider ui:field="slider" minValue="1" increment="1" message="第 {0} 天" />
+		</c:south>
+	</c:BorderLayoutContainer>
+</ui:UiBinder> 
