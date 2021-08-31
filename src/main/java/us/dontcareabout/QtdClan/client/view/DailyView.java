@@ -46,6 +46,9 @@ public class DailyView extends Composite {
 
 	private void refresh() {
 		slider.setMaxValue(DataCenter.damageAnalyser.days);
+		//如果 slider 原本就是 1，那再次呼叫 refresh() 時不會觸發 event
+		//所以只好先亂跳一個數字再跳回去 wwwwww
+		slider.setValue(slider.getMaxValue());
 		slider.setValue(1, true);
 	}
 
